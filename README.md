@@ -10,36 +10,42 @@ The AWS environment is implemented as a separate lab environment using test data
 
 ## Business Problem
 
-The existing on-premises environment contains two main infrastructure systems:
+The existing on-premises environment already implements a multi-layer backup strategy. Virtual machines and Docker application data are backed up daily to a Synology NAS, and the primary Synology is additionally backed up daily to a second Synology located at another company branch.
 
-- A VMware ESXi server hosting several virtual machines and business applications
-- A Synology NAS providing document storage and hosting Docker workloads
+Administrative documents are also synchronized with Microsoft 365, providing an additional level of availability for administrative users.
 
-Some services depend on both systems. This creates several potential failure scenarios.
+However, backup availability does not automatically provide service availability.
 
-For example, documents used by therapists are stored on the Synology NAS and exposed to Nextcloud through SMB External Storage.
+In the event of a major infrastructure failure, critical applications may still require infrastructure to be repaired or replaced, virtual machines and application data to be restored, networking to be reconfigured, and services to be validated before users can resume normal operations.
 
-Administrative users access synchronized versions of these documents through Microsoft 365.
+The project therefore does not aim to replace the existing backup strategy. Instead, it investigates how AWS can complement the current environment by providing a reproducible and partially automated disaster recovery platform for selected business-critical workloads.
 
-During a Synology outage, administrative users may therefore continue working through Microsoft 365 while therapists lose access through Nextcloud.
+A further challenge is data consistency. Documents stored on the Synology NAS are accessed by therapists through Nextcloud SMB External Storage, while administrative users access synchronized versions through Microsoft 365.
 
-A disaster recovery solution must restore access without creating conflicting writable copies of the same documents.
+During a Synology outage, administrative users may continue modifying documents in Microsoft 365. A disaster recovery environment must therefore avoid creating an independent writable copy that could result in conflicting versions during failback.
 
 ## Project Goal
 
-The goal of this project is to design and implement an AWS-based disaster recovery environment for selected business-critical workloads.
+The goal of this project is to design and implement an AWS-based disaster recovery environment that complements the existing on-premises and off-site backup infrastructure.
+
+Rather than replacing the current Synology backup strategy, AWS is used to provide reproducible recovery infrastructure for selected business-critical workloads.
+
+The project explores how Infrastructure as Code and cloud services can reduce recovery complexity and improve service availability following an on-premises infrastructure failure.
 
 The solution focuses on:
 
 - Hybrid cloud architecture
 - Infrastructure as Code
 - Disaster recovery
-- Backup and restore
+- Integration with existing backup processes
+- Backup and restore validation
 - Network isolation
 - Data consistency
 - Security and encryption
-- Monitoring
+- Monitoring and alerting
 - Controlled failover and failback
+- Recovery Time Objectives (RTO)
+- Recovery Point Objectives (RPO)
 
 ## Current Environment
 
@@ -73,6 +79,79 @@ The Synology NAS also hosts Docker applications used for:
 - Digital collection of T-RENA treatment signatures
 
 These applications are accessible only from the internal company network and must not be publicly exposed.
+
+## Existing Backup Strategy
+
+The current infrastructure already uses multiple layers of backup and data protection.
+
+### Virtual Machine Backups
+
+Virtual machines running on the VMware ESXi host are backed up daily to the primary Synology NAS.
+
+```text
+VMware ESXi
+     |
+     | Daily Backup
+     v
+Primary Synology
+```
+
+### Docker Application Data
+
+Persistent data used by the Docker applications hosted on the Synology NAS is also backed up daily.
+
+This includes the application data required by:
+
+- T-RENA treatment signature application
+- Prevention course management application
+
+### Off-Site Backup
+
+The primary Synology NAS is backed up daily to a second Synology NAS located at another company branch.
+
+```text
+                 Main Site
+
+VMware ESXi
+     |
+     | Daily VM Backup
+     v
+Primary Synology
+     |
+     | Daily Off-Site Backup
+     v
+Secondary Synology
+     |
+     v
+Different Company Branch
+```
+
+This provides an additional layer of protection against failures affecting the primary storage system or location.
+
+### Microsoft 365 Synchronization
+
+Selected document folders on the primary Synology are synchronized with Microsoft 365.
+
+This allows administrative users to continue accessing cloud-based copies of these documents even if the primary Synology becomes temporarily unavailable.
+
+```text
+Primary Synology
+       |
+       | Cloud Sync
+       v
+Microsoft 365
+       |
+       v
+Administration
+```
+
+### Backup vs. Disaster Recovery
+
+The existing backup infrastructure protects data, but restoring business services after a major failure can still require several manual recovery steps.
+
+The AWS disaster recovery environment is therefore designed to complement, rather than replace, the existing backup solution.
+
+The project focuses on reducing the time and complexity required to restore selected critical services by combining existing backups with reproducible AWS infrastructure and automated deployment processes.
 
 ## Workload Criticality
 
