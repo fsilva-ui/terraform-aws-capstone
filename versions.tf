@@ -9,7 +9,7 @@ terraform {
   }
 
   cloud {
-    organization = "Fit and Healthy Practice"
+    organization = "Fit_and_Healthy_Practice"
 
     workspaces {
       name = "aws-capstone-project"
