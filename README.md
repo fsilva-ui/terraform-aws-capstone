@@ -265,6 +265,14 @@ Potential AWS services include:
 
 The final selection of services will be based on technical requirements, security, recovery objectives, and cost.
 
+## AWS Region
+
+The lab environment is deployed in the `us-east-1` AWS Region due to restrictions imposed by the training sandbox used for this capstone project.
+
+For a production deployment based on the described German business environment, the AWS Region would be selected according to business, regulatory, data residency, latency, service availability, and disaster recovery requirements.
+
+The use of `us-east-1` in this project should therefore be considered a lab constraint rather than a production architecture decision.
+
 ## Infrastructure as Code
 
 AWS infrastructure is managed using Terraform.
