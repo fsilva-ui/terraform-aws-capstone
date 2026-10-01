@@ -26,3 +26,23 @@ output "data_subnet_ids" {
     aws_subnet.data_b.id
   ]
 }
+
+output "public_alb_security_group_id" {
+  description = "Security group ID for the public ALB"
+  value       = aws_security_group.public_alb.id
+}
+
+output "public_app_security_group_id" {
+  description = "Security group ID for public-facing applications"
+  value       = aws_security_group.public_app.id
+}
+
+output "internal_app_security_group_id" {
+  description = "Security group ID for internal-only applications"
+  value       = aws_security_group.internal_app.id
+}
+
+output "data_security_group_id" {
+  description = "Security group ID for private data services"
+  value       = aws_security_group.data.id
+}
