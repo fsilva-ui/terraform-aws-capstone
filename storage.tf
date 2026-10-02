@@ -27,3 +27,14 @@ resource "aws_s3_bucket_versioning" "dr_backup" {
     status = "Enabled"
   }
 }
+
+# Enable server-side encryption for the S3 bucket
+resource "aws_s3_bucket_server_side_encryption_configuration" "dr_backup" {
+  bucket = aws_s3_bucket.dr_backup.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
