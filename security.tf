@@ -67,7 +67,7 @@ resource "aws_security_group_rule" "alb_https" {
   description = "Allow HTTPS traffic from the internet"
 }
 
-# Inbound roles fot public-facing application tier
+# Inbound/Outbound rules for public-facing application tier
 resource "aws_security_group_rule" "public_app_http" {
   security_group_id = aws_security_group.public_app.id
   type              = "ingress"
@@ -77,4 +77,15 @@ resource "aws_security_group_rule" "public_app_http" {
   cidr_blocks       = ["0.0.0.0/0"]
 
   description = "Temporary direct HTTP access for DR lab validation"
+}
+
+resource "aws_security_group_rule" "public_app_egress" {
+  security_group_id = aws_security_group.public_app.id
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+
+  description = "Allow outbound traffic for public DR application workloads"
 }
