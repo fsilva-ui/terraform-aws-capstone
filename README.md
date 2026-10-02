@@ -381,9 +381,8 @@ Planned structure:
 
 🚧 **In Progress**
 
-Current phase:
 
-**Current phase: AWS network and security infrastructure implementation**
+**Current phase: AWS compute and disaster recovery workload implementation**
 
 Next steps:
 
