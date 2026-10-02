@@ -46,3 +46,18 @@ output "data_security_group_id" {
   description = "Security group ID for private data services"
   value       = aws_security_group.data.id
 }
+
+output "nextcloud_dr_instance_id" {
+  description = "ID of the Nextcloud disaster recovery instance"
+  value       = aws_instance.nextcloud_dr.id
+}
+
+output "nextcloud_dr_public_ip" {
+  description = "Public IP address of the Nextcloud disaster recovery instance"
+  value       = aws_instance.nextcloud_dr.public_ip
+}
+
+output "nextcloud_dr_url" {
+  description = "URL to access the Nextcloud disaster recovery instance"
+  value       = "http://${aws_instance.nextcloud_dr.public_ip}"
+}
