@@ -382,7 +382,7 @@ Planned structure:
 🚧 **In Progress**
 
 
-**Current phase: AWS compute and disaster recovery workload implementation**
+**Current phase: Disaster recovery validation and service restoration testing**
 
 Next steps:
 
