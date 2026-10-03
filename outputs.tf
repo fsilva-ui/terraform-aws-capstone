@@ -66,3 +66,18 @@ output "nextcloud_dr_ami_id" {
   description = "AMI ID for Nextcloud DR recovery"
   value       = aws_ami_from_instance.nextcloud_dr.id
 }
+
+output "nextcloud_recovery_instance_id" {
+  description = "Instance ID of the recovered Nextcloud DR instance"
+  value       = aws_instance.nextcloud_recovery.id
+}
+
+output "nextcloud_recovery_public_ip" {
+  description = "Public IP of the recovered Nextcloud DR instance"
+  value       = aws_instance.nextcloud_recovery.public_ip
+}
+
+output "nextcloud_recovery_url" {
+  description = "URL of the recovered Nextcloud DR instance"
+  value       = "http://${aws_instance.nextcloud_recovery.public_ip}"
+}
