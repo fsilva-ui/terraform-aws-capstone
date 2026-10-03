@@ -61,3 +61,8 @@ output "nextcloud_dr_url" {
   description = "URL to access the Nextcloud disaster recovery instance"
   value       = "http://${aws_instance.nextcloud_dr.public_ip}"
 }
+
+output "nextcloud_dr_snapshot_id" {
+  description = "EBS snapshot ID for the Nextcloud DR instance"
+  value       = aws_ebs_snapshot.nextcloud_dr.id
+}
