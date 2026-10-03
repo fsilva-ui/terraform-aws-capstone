@@ -62,7 +62,7 @@ output "nextcloud_dr_url" {
   value       = "http://${aws_instance.nextcloud_dr.public_ip}"
 }
 
-output "nextcloud_dr_snapshot_id" {
-  description = "EBS snapshot ID for the Nextcloud DR instance"
-  value       = aws_ebs_snapshot.nextcloud_dr.id
+output "nextcloud_dr_ami_id" {
+  description = "AMI ID for Nextcloud DR recovery"
+  value       = aws_ami_from_instance.nextcloud_dr.id
 }

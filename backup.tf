@@ -1,17 +1,10 @@
-data "aws_ebs_volume" "nextcloud_dr" {
-  most_recent = true
-
-  filter {
-    name   = "attachment.instance-id"
-    values = [aws_instance.nextcloud_dr.id]
-  }
-}
-
-resource "aws_ebs_snapshot" "nextcloud_dr" {
-  volume_id = data.aws_ebs_volume.nextcloud_dr.id
+# Create an AMI from the EC2 instance for disaster recovery purposes
+resource "aws_ami_from_instance" "nextcloud_dr" {
+  name               = "nextcloud-dr-recovery-image"
+  source_instance_id = aws_instance.nextcloud_dr.id
 
   tags = {
-    Name        = "nextcloud-dr-snapshot"
+    Name        = "nextcloud-dr-recovery-image"
     Environment = "lab"
     Project     = "AWS Cloud Capstone"
     Purpose     = "Disaster Recovery"
