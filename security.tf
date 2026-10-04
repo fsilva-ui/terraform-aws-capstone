@@ -79,6 +79,16 @@ resource "aws_security_group_rule" "public_app_http" {
   description = "Temporary direct HTTP access for DR lab validation"
 }
 
+resource "aws_security_group_rule" "public_app_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["92.211.149.84/32"]
+  security_group_id = aws_security_group.public_app.id
+  description       = "Temporary SSH access for Nextcloud DR administration"
+}
+
 resource "aws_security_group_rule" "public_app_egress" {
   security_group_id = aws_security_group.public_app.id
   type              = "egress"
