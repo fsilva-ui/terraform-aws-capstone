@@ -20,3 +20,8 @@ variable "admin_ip_cidr" {
   description = "Public IP address allowed to access the DR instance via SSH"
   type        = string
 }
+
+variable "ssh_public_key" {
+  description = "Public SSH key used for administration of the DR instance"
+  type        = string
+}
