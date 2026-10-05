@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "The AWS region used for disaster recovery environment"
   type        = string
-  default     = "us-east-1"
+  default     = "eu-central-1"
 }
 
 variable "project_name" {

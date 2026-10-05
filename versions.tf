@@ -12,7 +12,7 @@ terraform {
     organization = "Fit_and_Healthy_Practice"
 
     workspaces {
-      name = "terraform-aws-capstone"
+      name = "terraform-aws-capstone-personal"
     }
   }
 }
