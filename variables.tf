@@ -15,3 +15,8 @@ variable "vpc_cidr" {
   type        = string
   default     = "10.20.0.0/16"
 }
+
+variable "admin_ip_cidr" {
+  description = "Public IP address allowed to access the DR instance via SSH"
+  type        = string
+}

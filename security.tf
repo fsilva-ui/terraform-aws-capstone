@@ -84,7 +84,7 @@ resource "aws_security_group_rule" "public_app_ssh" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = ["92.211.149.84/32"]
+  cidr_blocks       = [var.admin_ip_cidr]
   security_group_id = aws_security_group.public_app.id
   description       = "Temporary SSH access for Nextcloud DR administration"
 }
