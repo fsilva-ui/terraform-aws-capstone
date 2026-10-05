@@ -12,6 +12,8 @@ resource "aws_instance" "nextcloud_dr" {
     aws_security_group.public_app.id
   ]
 
+  iam_instance_profile = aws_iam_instance_profile.nextcloud_dr.name
+
   associate_public_ip_address = true
 
   user_data = <<-EOF
