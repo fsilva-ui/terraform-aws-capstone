@@ -265,13 +265,15 @@ Potential AWS services include:
 
 The final selection of services will be based on technical requirements, security, recovery objectives, and cost.
 
-## AWS Region
+### AWS Region
 
-The lab environment is deployed in the `us-east-1` AWS Region due to restrictions imposed by the training sandbox used for this capstone project.
+The disaster recovery environment is deployed in the **eu-central-1 (Frankfurt)** AWS Region.
 
-For a production deployment based on the described German business environment, the AWS Region would be selected according to business, regulatory, data residency, latency, service availability, and disaster recovery requirements.
+The project was initially developed in a temporary AWS training sandbox restricted to **us-east-1**. After validating the initial infrastructure and disaster recovery workflow, the project was migrated to a personal AWS account to provide a persistent environment for further recovery testing.
 
-The use of `us-east-1` in this project should therefore be considered a lab constraint rather than a production architecture decision.
+Frankfurt was selected for the current implementation because the simulated company is based in Germany, making it a more appropriate region for the project scenario in terms of geographic proximity and data residency considerations.
+
+The training environment and its Terraform state have been retained separately for historical and testing purposes.
 
 ## Infrastructure as Code
 
