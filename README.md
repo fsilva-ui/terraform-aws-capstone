@@ -386,18 +386,19 @@ Planned structure:
 
 **Current phase: Disaster recovery validation and service restoration testing**
 
-Next steps:
+### Current Progress
 
-1. Finalize workload dependencies
-2. Define RPO and RTO requirements
-3. Design the AWS network architecture
-4. Select AWS services for each workload
-5. Implement the base infrastructure with Terraform
-6. Implement backup and recovery workflows
-7. Test disaster scenarios
-8. Test failback and data consistency
-9. Document results and costs
-10. Prepare the final capstone presentation
+- Successfully deployed the AWS disaster recovery infrastructure using Terraform.
+- Implemented automatic Nextcloud recovery from an Amazon S3 backup.
+- Restored the Nextcloud database, configuration, applications and user files.
+- Verified restored users, files and Nextcloud Talk conversations.
+- Confirmed that Nextcloud is fully functional after automated recovery.
+
+### Next Steps
+
+- Finalize MVP documentation and architecture diagram.
+- Prepare the disaster recovery demonstration.
+- Implement optional improvements if time permits.
 
 ## Disclaimer
 
