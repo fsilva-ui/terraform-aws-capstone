@@ -25,7 +25,7 @@ resource "aws_iam_role_policy" "eventbridge_ssm" {
       {
         Effect   = "Allow"
         Action   = "ssm:StartAutomationExecution"
-        Resource = "arn:aws:ssm:${var.aws_region}::automation-definition/AWS-StartEC2Instance:*"
+        Resource = "arn:aws:ssm:${var.aws_region}::document/AWS-StartEC2Instance"
       },
       {
         Effect   = "Allow"
