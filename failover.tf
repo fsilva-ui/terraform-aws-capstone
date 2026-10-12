@@ -35,6 +35,16 @@ resource "aws_iam_role_policy" "eventbridge_ssm" {
         Effect   = "Allow"
         Action   = "ec2:StartInstances"
         Resource = aws_instance.nextcloud_dr.arn
+      },
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ec2:DescribeInstanceStatus",
+          "ec2:DescribeInstances"
+        ]
+
+        Resource = "*"
       }
     ]
   })
