@@ -23,9 +23,13 @@ resource "aws_iam_role_policy" "eventbridge_ssm" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = "ssm:StartAutomationExecution"
-        Resource = "arn:aws:ssm:${var.aws_region}::document/AWS-StartEC2Instance"
+        Effect = "Allow"
+        Action = "ssm:StartAutomationExecution"
+
+        Resource = [
+          "arn:aws:ssm:${var.aws_region}::document/AWS-StartEC2Instance",
+          "arn:aws:ssm:${var.aws_region}:088811745609:automation-execution/*"
+        ]
       },
       {
         Effect   = "Allow"
