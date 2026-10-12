@@ -19,6 +19,12 @@ resource "aws_instance" "nextcloud_dr" {
 
   user_data = file("${path.module}/scripts/restore-nextcloud.sh")
 
+  lifecycle {
+    ignore_changes = [
+      associate_public_ip_address
+    ]
+  }
+
   tags = {
     Name     = "${var.project_name}-nextcloud-dr"
     Workload = "Nextcloud"
