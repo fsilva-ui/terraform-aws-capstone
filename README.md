@@ -383,22 +383,58 @@ Planned structure:
 
 🚧 **In Progress**
 
-
-**Current phase: Disaster recovery validation and service restoration testing**
+**Current phase: Automated disaster recovery successfully validated — documentation and reliability improvements**
 
 ### Current Progress
 
 - Successfully deployed the AWS disaster recovery infrastructure using Terraform.
-- Implemented automatic Nextcloud recovery from an Amazon S3 backup.
-- Restored the Nextcloud database, configuration, applications and user files.
+- Configured Amazon S3 for Nextcloud backup storage.
+- Implemented a custom AWS Systems Manager Automation runbook.
+- Configured Amazon EventBridge to detect the simulated on-premises EC2 shutdown.
+- Successfully triggered the SSM Automation runbook automatically through EventBridge.
+- Automatically launched a new EC2 disaster recovery instance.
+- Restored Nextcloud from an Amazon S3 backup using EC2 User Data.
+- Successfully restored the Nextcloud database, configuration, applications and user files.
 - Verified restored users, files and Nextcloud Talk conversations.
-- Confirmed that Nextcloud is fully functional after automated recovery.
+- Confirmed that Nextcloud is accessible and functional after recovery.
+
+### Automated Disaster Recovery — Successfully Tested
+
+**Test date:** October 13, 2026
+
+**Status:** Successfully validated.
+
+The automated disaster recovery workflow was tested end-to-end using Amazon EventBridge and AWS Systems Manager Automation.
+
+**Validated recovery workflow:**
+
+1. The simulated on-premises EC2 instance was manually stopped to simulate a server failure.
+2. Amazon EventBridge detected the EC2 state change.
+3. EventBridge automatically triggered the custom SSM Automation runbook.
+4. The runbook successfully launched a new Amazon Linux 2023 EC2 instance.
+5. EC2 User Data executed the Nextcloud recovery script.
+6. Nextcloud was restored using the backup stored in Amazon S3.
+7. The recovered Nextcloud application was successfully accessed.
+
+**Result:**
+
+Automated infrastructure provisioning and Nextcloud application recovery were successfully demonstrated without AWS Lambda or Elastic IP.
+
+**Current limitations:**
+
+- Failure detection is based on the simulated on-premises EC2 state change.
+- Duplicate DR instance prevention has not yet been implemented.
+- Automatic cleanup of temporary recovery instances is not yet implemented.
+- RTO and RPO have not yet been formally measured and documented.
 
 ### Next Steps
 
-- Finalize MVP documentation and architecture diagram.
+- Prevent duplicate DR instance creation.
+- Implement cleanup of temporary recovery instances.
+- Measure Recovery Time Objective (RTO).
+- Document Recovery Point Objective (RPO).
+- Finalize the MVP documentation and AWS architecture diagram.
 - Prepare the disaster recovery demonstration.
-- Implement optional improvements if time permits.
 
 ## Disclaimer
 
