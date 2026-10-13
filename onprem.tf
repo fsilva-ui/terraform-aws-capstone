@@ -114,4 +114,11 @@ resource "aws_instance" "onprem" {
     Name = "${var.project_name}-onprem-server"
     Role = "Simulated-On-Premises"
   }
+
+  lifecycle {
+    ignore_changes = [
+      ami,
+      associate_public_ip_address
+    ]
+  }
 }

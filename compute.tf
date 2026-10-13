@@ -21,6 +21,7 @@ resource "aws_instance" "nextcloud_dr" {
 
   lifecycle {
     ignore_changes = [
+      ami,
       associate_public_ip_address
     ]
   }
