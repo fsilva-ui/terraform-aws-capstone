@@ -81,3 +81,8 @@ output "nextcloud_dr_url" {
 #   description = "URL of the recovered Nextcloud DR instance"
 #   value       = "http://${aws_instance.nextcloud_recovery.public_ip}"
 # }
+
+output "nextcloud_dr_elastic_ip" {
+  description = "Static public IP address of the Nextcloud DR instance"
+  value       = aws_eip.nextcloud_dr.public_ip
+}
