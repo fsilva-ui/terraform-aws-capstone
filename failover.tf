@@ -28,6 +28,7 @@ resource "aws_iam_role_policy" "eventbridge_ssm" {
 
         Resource = [
           aws_ssm_document.nextcloud_recovery.arn,
+          "${aws_ssm_document.nextcloud_recovery.arn}:*",
           "arn:aws:ssm:${var.aws_region}:088811745609:automation-execution/*"
         ]
       },
