@@ -27,7 +27,7 @@ resource "aws_iam_role_policy" "eventbridge_ssm" {
         Action = "ssm:StartAutomationExecution"
 
         Resource = [
-          "arn:aws:ssm:${var.aws_region}::document/AWS-StartEC2Instance",
+          aws_ssm_document.nextcloud_recovery.arn,
           "arn:aws:ssm:${var.aws_region}:088811745609:automation-execution/*"
         ]
       },
@@ -35,6 +35,19 @@ resource "aws_iam_role_policy" "eventbridge_ssm" {
         Effect   = "Allow"
         Action   = "ec2:StartInstances"
         Resource = aws_instance.nextcloud_dr.arn
+      },
+      {
+        Effect = "Allow"
+
+        Action = "iam:PassRole"
+
+        Resource = aws_iam_role.ssm_recovery.arn
+
+        Condition = {
+          StringEquals = {
+            "iam:PassedToService" = "ssm.amazonaws.com"
+          }
+        }
       },
       {
         Effect = "Allow"
@@ -67,10 +80,6 @@ resource "aws_cloudwatch_event_rule" "onprem_stopped" {
 # Run the AWS-managed SSM automation
 resource "aws_cloudwatch_event_target" "start_dr" {
   rule     = aws_cloudwatch_event_rule.onprem_stopped.name
-  arn      = "arn:aws:ssm:${var.aws_region}::automation-definition/AWS-StartEC2Instance"
+  arn      = "${aws_ssm_document.nextcloud_recovery.arn}:$DEFAULT"
   role_arn = aws_iam_role.eventbridge_ssm.arn
-
-  input = jsonencode({
-    InstanceId = [aws_instance.nextcloud_dr.id]
-  })
 }
