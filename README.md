@@ -423,13 +423,29 @@ Automated infrastructure provisioning and Nextcloud application recovery were su
 **Current limitations:**
 
 - Failure detection is based on the simulated on-premises EC2 state change.
-- Duplicate DR instance prevention has not yet been implemented.
+- The duplicate-instance check does not prevent simultaneous automation executions from both creating a recovery instance.
+- Recovery instances created before the tagging change are not detected unless the required tag is added.
 - Automatic cleanup of temporary recovery instances is not yet implemented.
 - RTO and RPO have not yet been formally measured and documented.
 
+### Recovery Instance Check — Successfully Tested
+
+**Test date:** October 15, 2026
+
+The recovery runbook now checks for an existing recovery instance before creating another one.
+
+The check searches the recovery subnet for instances tagged `RecoveryManagedBy = SSMAutomation`. Pending, running, stopping, stopped and shutting-down instances block creation.
+
+**Validated tests:**
+
+1. With no matching recovery instance present, the runbook created a new EC2 instance.
+2. The recovered Nextcloud was accessible, and the user confirmed that messages and a file saved before the backup were present.
+3. With that recovery instance still present, a second execution followed `RecoveryAlreadyExists` and ended without executing `CreateDRInstance`.
+
+**Result:** Sequential executions were successfully tested: an existing tagged recovery instance prevented another instance from being created. Concurrent executions have not been protected or validated.
+
 ### Next Steps
 
-- Prevent duplicate DR instance creation.
 - Implement cleanup of temporary recovery instances.
 - Measure Recovery Time Objective (RTO).
 - Document Recovery Point Objective (RPO).
