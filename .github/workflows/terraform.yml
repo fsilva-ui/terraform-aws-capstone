@@ -1,0 +1,152 @@
+name: Terraform
+
+# Pull request: fmt + validate + plan (plan is posted as a PR comment).
+# Push to main:  plan, then apply that exact plan after manual approval
+#                (GitHub Environment "production").
+#
+# State lives in Terraform Cloud; the workspace must use Execution Mode "Local"
+# so Terraform runs on this runner with AWS credentials obtained through OIDC.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "**.tf"
+      - ".terraform.lock.hcl"
+      - "scripts/**"
+      - ".github/workflows/terraform.yml"
+  push:
+    branches: [main]
+    paths:
+      - "**.tf"
+      - ".terraform.lock.hcl"
+      - "scripts/**"
+      - ".github/workflows/terraform.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two applies at once; queue instead of cancelling a running apply.
+concurrency:
+  group: terraform-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: eu-central-1
+  TF_IN_AUTOMATION: "true"
+  TF_VAR_admin_ip_cidr: ${{ vars.ADMIN_IP_CIDR }}
+  TF_VAR_ssh_public_key: ${{ vars.SSH_PUBLIC_KEY }}
+
+jobs:
+  validate:
+    name: Format & validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "~> 1.15"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - run: terraform fmt -check -recursive -diff
+
+      - run: terraform init -input=false
+
+      - run: terraform validate -no-color
+
+  plan:
+    name: Plan
+    needs: validate
+    runs-on: ubuntu-latest
+    # Fork PRs get neither OIDC nor secrets, so skip them.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      id-token: write # request the OIDC token
+      contents: read
+      pull-requests: write # post the plan comment
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "~> 1.15"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - run: terraform init -input=false
+
+      - run: terraform plan -input=false -no-color -out=tfplan
+
+      - run: terraform show -no-color tfplan > plan.txt
+
+      - name: Comment plan on PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '### Terraform plan'
+            echo '```terraform'
+            head -c 60000 plan.txt
+            echo
+            echo '```'
+          } > comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md --edit-last --create-if-none
+
+      - name: Show plan in job summary
+        run: |
+          {
+            echo '### Terraform plan'
+            echo '```terraform'
+            head -c 60000 plan.txt
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload plan for apply
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: tfplan
+          path: tfplan
+          retention-days: 1
+
+  apply:
+    name: Apply
+    needs: plan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # Add required reviewers on this environment (Settings > Environments) to gate the apply.
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "~> 1.15"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_APPLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: tfplan
+
+      - run: terraform init -input=false
+
+      - run: terraform apply -input=false -no-color tfplan
