@@ -89,25 +89,17 @@ jobs:
 
       - name: Comment plan on PR
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const fs = require('fs');
-            const marker = '<!-- terraform-plan -->';
-            let plan = fs.readFileSync('plan.txt', 'utf8');
-            if (plan.length > 60000) {
-              plan = plan.slice(0, 60000) + '\n\n... plan truncated, see the workflow run for the full output ...';
-            }
-            const body = `${marker}\n### Terraform plan\n\n<details><summary>Show plan</summary>\n\n\`\`\`terraform\n${plan}\n\`\`\`\n\n</details>\n\n*Commit ${context.sha.slice(0, 7)} · [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})*`;
-            const { owner, repo } = context.repo;
-            const issue_number = context.issue.number;
-            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
-            const existing = comments.find(c => c.body && c.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-            } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body });
-            }
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '### Terraform plan'
+            echo '```terraform'
+            head -c 60000 plan.txt
+            echo
+            echo '```'
+          } > comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md --edit-last --create-if-none
 
       - name: Show plan in job summary
         run: |
