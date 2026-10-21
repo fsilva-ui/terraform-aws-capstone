@@ -530,7 +530,7 @@ Nextcloud application recovery using an ALB, an EC2 application server and a sep
 - Reusing a populated RDS database for a later recovery requires a separate recovery procedure.
 - The new script was uploaded manually as `scripts/restore-nextcloud-rds.sh`; Git pushes do not automatically update this S3 object.
 - The EventBridge trigger has not yet been retested with the RDS recovery workflow.
-- The sequential duplicate-instance check was previously validated with the ALB workflow; concurrent execution protection remains unimplemented.
+- Sequential duplicate-instance prevention was also successfully retested with the RDS recovery workflow on October 21, 2026. Concurrent execution protection remains unimplemented.
 - Automatic cleanup and formal RTO/RPO measurement remain outstanding.
 
 ### Next Steps
