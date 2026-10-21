@@ -139,3 +139,9 @@ resource "aws_iam_role_policy" "terraform_cloud_rds" {
     ]
   })
 }
+
+# Attach the AmazonSSMManagedInstanceCore policy to the Nextcloud DR instance role
+resource "aws_iam_role_policy_attachment" "nextcloud_dr_ssm_core" {
+  role       = aws_iam_role.nextcloud_dr.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
