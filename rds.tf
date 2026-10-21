@@ -1,4 +1,7 @@
 resource "aws_db_subnet_group" "nextcloud" {
+  depends_on = [
+    aws_iam_role_policy.terraform_cloud_rds
+  ]
   name        = "${var.project_name}-nextcloud-db"
   description = "Private subnets for the Nextcloud database"
 
@@ -13,6 +16,9 @@ resource "aws_db_subnet_group" "nextcloud" {
 }
 
 resource "aws_db_instance" "nextcloud" {
+  depends_on = [
+    aws_iam_role_policy.terraform_cloud_rds
+  ]
   identifier = "${var.project_name}-nextcloud-db"
 
   engine         = "mariadb"
@@ -50,6 +56,9 @@ resource "aws_db_instance" "nextcloud" {
 }
 
 resource "aws_db_parameter_group" "nextcloud" {
+  depends_on = [
+    aws_iam_role_policy.terraform_cloud_rds
+  ]
   name        = "${var.project_name}-nextcloud-mariadb"
   family      = "mariadb10.11"
   description = "MariaDB settings for Nextcloud"

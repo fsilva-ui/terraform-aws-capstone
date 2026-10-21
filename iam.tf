@@ -72,3 +72,70 @@ resource "aws_iam_role_policy" "nextcloud_dr_rds_secret" {
     ]
   })
 }
+
+# Additional deployment permissions for Terraform Cloud
+resource "aws_iam_role_policy" "terraform_cloud_rds" {
+  name = "TerraformCapstoneRDSDeploymentPolicy"
+  role = "terraform-cloud-capstone"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Sid    = "ManageCapstoneRDS"
+        Effect = "Allow"
+        Action = "rds:*"
+
+        Resource = [
+          "arn:aws:rds:${var.aws_region}:088811745609:db:capstone-dr-*",
+          "arn:aws:rds:${var.aws_region}:088811745609:pg:capstone-dr-*",
+          "arn:aws:rds:${var.aws_region}:088811745609:subgrp:capstone-dr-*",
+          "arn:aws:rds:${var.aws_region}:088811745609:snapshot:capstone-dr-*"
+        ]
+      },
+      {
+        Sid    = "ReadRDSConfiguration"
+        Effect = "Allow"
+
+        Action = [
+          "rds:Describe*",
+          "rds:ListTagsForResource"
+        ]
+
+        Resource = "*"
+      },
+      {
+        Sid    = "CreateRDSManagedSecret"
+        Effect = "Allow"
+
+        Action = [
+          "secretsmanager:CreateSecret",
+          "secretsmanager:TagResource",
+          "secretsmanager:DescribeSecret"
+        ]
+
+        Resource = "arn:aws:secretsmanager:${var.aws_region}:088811745609:secret:rds!db-*"
+      },
+      {
+        Sid      = "DescribeEncryptionKeys"
+        Effect   = "Allow"
+        Action   = "kms:DescribeKey"
+        Resource = "arn:aws:kms:${var.aws_region}:088811745609:key/*"
+      },
+      {
+        Sid    = "CreateRDSServiceLinkedRole"
+        Effect = "Allow"
+        Action = "iam:CreateServiceLinkedRole"
+
+        Resource = "arn:aws:iam::088811745609:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
+
+        Condition = {
+          StringEquals = {
+            "iam:AWSServiceName" = "rds.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
