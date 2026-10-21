@@ -147,12 +147,16 @@ resource "aws_ssm_document" "nextcloud_recovery" {
             set -euo pipefail
 
             aws s3 cp \
-              s3://${aws_s3_bucket.dr_backup.bucket}/scripts/restore-nextcloud-alb.sh \
+              s3://${aws_s3_bucket.dr_backup.bucket}/scripts/restore-nextcloud-rds.sh \
               /root/restore-nextcloud.sh
 
             chmod +x /root/restore-nextcloud.sh
 
-            /root/restore-nextcloud.sh "${aws_lb.nextcloud.dns_name}"
+            /root/restore-nextcloud.sh \
+              "${aws_lb.nextcloud.dns_name}" \
+              "${aws_db_instance.nextcloud.address}" \
+              "${aws_db_instance.nextcloud.master_user_secret[0].secret_arn}" \
+              "${var.aws_region}"
           EOF
           )
         }

@@ -54,3 +54,21 @@ resource "aws_iam_instance_profile" "nextcloud_dr" {
   name = "capstone-nextcloud-dr-profile"
   role = aws_iam_role.nextcloud_dr.name
 }
+
+# Allow the Nextcloud DR instance to access the RDS master user secret
+resource "aws_iam_role_policy" "nextcloud_dr_rds_secret" {
+  name = "${var.project_name}-nextcloud-rds-secret"
+  role = aws_iam_role.nextcloud_dr.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "secretsmanager:GetSecretValue"
+        Resource = aws_db_instance.nextcloud.master_user_secret[0].secret_arn
+      }
+    ]
+  })
+}

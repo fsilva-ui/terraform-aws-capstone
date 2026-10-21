@@ -56,3 +56,13 @@ output "nextcloud_alb_url" {
   description = "URL to access Nextcloud through the load balancer"
   value       = "http://${aws_lb.nextcloud.dns_name}"
 }
+
+output "nextcloud_rds_address" {
+  description = "Private endpoint of the Nextcloud RDS database"
+  value       = aws_db_instance.nextcloud.address
+}
+
+output "nextcloud_rds_port" {
+  description = "Port of the Nextcloud RDS database"
+  value       = aws_db_instance.nextcloud.port
+}

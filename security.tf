@@ -100,6 +100,7 @@ resource "aws_security_group_rule" "public_app_egress" {
   description = "Allow outbound traffic for public DR application workloads"
 }
 
+#Egress rules for load balancer to application tier
 resource "aws_security_group_rule" "alb_to_nextcloud" {
   security_group_id        = aws_security_group.public_alb.id
   type                     = "egress"
@@ -109,4 +110,16 @@ resource "aws_security_group_rule" "alb_to_nextcloud" {
   source_security_group_id = aws_security_group.public_app.id
 
   description = "Allow HTTP traffic from ALB to Nextcloud"
+}
+
+#Inbound rules for database/data tier
+resource "aws_security_group_rule" "nextcloud_to_rds" {
+  security_group_id        = aws_security_group.data.id
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.public_app.id
+
+  description = "Allow MariaDB access from Nextcloud instances"
 }
