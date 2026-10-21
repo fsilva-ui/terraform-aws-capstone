@@ -246,7 +246,7 @@ The disaster recovery design must maintain a clearly defined authoritative data 
 
 The final AWS architecture is currently being designed.
 
-Potential AWS services include:
+The following list describes services considered for the broader architecture; it is not a list of implemented components. See Project Status for validated MVP functionality. Potential AWS services include:
 
 - Amazon VPC
 - Amazon EC2
@@ -274,6 +274,8 @@ The project was initially developed in a temporary AWS training sandbox restrict
 Frankfurt was selected for the current implementation because the simulated company is based in Germany, making it a more appropriate region for the project scenario in terms of geographic proximity and data residency considerations.
 
 The training environment and its Terraform state have been retained separately for historical and testing purposes.
+
+The current lab simulates failure using a separate EC2 instance. It does not yet implement a connection to the real on-premises environment, automated on-premises backup transfer to AWS, or controlled failback.
 
 ## Infrastructure as Code
 
@@ -307,7 +309,7 @@ The objective is to make the disaster recovery infrastructure reproducible and m
 
 ## Security Principles
 
-The architecture follows several security principles:
+The architecture is guided by the following security objectives. These are not all implemented in the current MVP; in particular, the recovered application currently uses HTTP, runs in a public subnet and does not use centralized secrets management:
 
 - Least-privilege IAM permissions
 - Private subnets for internal workloads
@@ -383,7 +385,7 @@ Planned structure:
 
 🚧 **In Progress**
 
-**Current phase: Automated disaster recovery successfully validated — documentation and reliability improvements**
+**Current phase: Nextcloud recovery through an Application Load Balancer successfully validated — private subnet and database improvements planned**
 
 ### Current Progress
 
@@ -397,6 +399,8 @@ Planned structure:
 - Successfully restored the Nextcloud database, configuration, applications and user files.
 - Verified restored users, files and Nextcloud Talk conversations.
 - Confirmed that Nextcloud is accessible and functional after recovery.
+- Deployed an Application Load Balancer and automated recovery instance registration in its target group.
+- Validated Nextcloud access through the ALB and repeated the sequential duplicate-instance prevention test.
 
 ### Automated Disaster Recovery — Successfully Tested
 
@@ -444,13 +448,44 @@ The check searches the recovery subnet for instances tagged `RecoveryManagedBy =
 
 **Result:** Sequential executions were successfully tested: an existing tagged recovery instance prevented another instance from being created. Concurrent executions have not been protected or validated.
 
+### Application Load Balancer — Successfully Tested
+
+**Test date:** October 21, 2026
+
+An internet-facing Application Load Balancer (ALB) was deployed using Terraform.
+
+The ALB uses two public subnets in different Availability Zones and forwards HTTP traffic to the Nextcloud recovery instance through a target group. The recovery instance accepts HTTP traffic only from the ALB security group.
+
+The database currently runs as MariaDB on the recovery EC2 instance. Amazon RDS is planned and has not been implemented.
+
+**Validated tests:**
+
+1. The updated SSM Automation runbook was started manually.
+2. The runbook created a new Amazon Linux 2023 EC2 recovery instance.
+3. The instance was automatically registered in the ALB target group.
+4. EC2 User Data restored Nextcloud from the Amazon S3 backup.
+5. Nextcloud was successfully accessed through the ALB DNS name.
+6. Restored users, files and Nextcloud Talk messages were verified.
+7. A second execution detected the existing recovery instance and skipped instance creation and target registration.
+
+**Current scope and limitations:**
+
+- The recovery instance still runs in a public subnet; migration to a private subnet is planned.
+- Access currently uses HTTP. HTTPS is not yet configured.
+- The ALB spans two Availability Zones, but only one recovery instance is created; the application is not highly available.
+- The ALB health check requests `/status.php`; application and data recovery were verified separately.
+- Successful completion of the SSM runbook does not by itself confirm that application restoration has finished.
+- This test validated manual execution of the updated runbook. The EventBridge trigger was validated in the earlier test and has not yet been retested with the ALB workflow.
+- The ALB restore script was uploaded manually to S3 as `scripts/restore-nextcloud-alb.sh`. Committing the local script does not update the S3 copy automatically.
+- The AWS service-linked role for Elastic Load Balancing was created manually as an account prerequisite.
+- The existing-instance branch skips creation; it does not repair missing target registrations or restart stopped recovery instances.
+
 ### Next Steps
 
-- Implement cleanup of temporary recovery instances.
-- Measure Recovery Time Objective (RTO).
-- Document Recovery Point Objective (RPO).
-- Finalize the MVP documentation and AWS architecture diagram.
-- Prepare the disaster recovery demonstration.
+- Move the Nextcloud recovery instance to a private subnet with the outbound connectivity required for restoration.
+- Plan and implement Amazon RDS for MariaDB as a separate database service.
+- Adapt the backup and recovery scripts to restore the Nextcloud database to Amazon RDS.
+- Configure HTTPS for access through the ALB.
 
 ## Disclaimer
 
