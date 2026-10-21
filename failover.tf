@@ -28,14 +28,9 @@ resource "aws_iam_role_policy" "eventbridge_ssm" {
         Action = "ssm:StartAutomationExecution"
 
         Resource = [
-            "arn:aws:ssm:${var.aws_region}:088811745609:document/${aws_ssm_document.nextcloud_recovery.name}",
-            "arn:aws:ssm:${var.aws_region}:088811745609:automation-execution/*"
+          "arn:aws:ssm:${var.aws_region}:088811745609:document/${aws_ssm_document.nextcloud_recovery.name}",
+          "arn:aws:ssm:${var.aws_region}:088811745609:automation-execution/*"
         ]
-      },
-      {
-        Effect   = "Allow"
-        Action   = "ec2:StartInstances"
-        Resource = aws_instance.nextcloud_dr.arn
       },
       {
         Effect = "Allow"
