@@ -244,6 +244,12 @@ The disaster recovery design must maintain a clearly defined authoritative data 
 
 ## Proposed AWS Architecture
 
+The diagram below shows the intended final architecture for all company systems. It includes planned components and does not represent the current deployment status. See Project Status for implemented and tested functionality.
+
+![Hybrid cloud disaster recovery target architecture](architecture/final-target-architecture.png)
+
+[Download the editable Excalidraw diagram](architecture/final-target-architecture.excalidraw)
+
 The final AWS architecture is currently being designed.
 
 The following list describes services considered for the broader architecture; it is not a list of implemented components. See Project Status for validated MVP functionality. Potential AWS services include:
