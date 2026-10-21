@@ -44,7 +44,7 @@ resource "aws_db_instance" "nextcloud" {
   publicly_accessible = false
   multi_az            = false
 
-  backup_retention_period = 7
+  backup_retention_period = 1
   deletion_protection     = true
   skip_final_snapshot     = false
 
