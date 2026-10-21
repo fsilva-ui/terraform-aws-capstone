@@ -46,3 +46,13 @@ output "data_security_group_id" {
   description = "Security group ID for private data services"
   value       = aws_security_group.data.id
 }
+
+output "nextcloud_alb_dns_name" {
+  description = "DNS name of the Nextcloud load balancer"
+  value       = aws_lb.nextcloud.dns_name
+}
+
+output "nextcloud_alb_url" {
+  description = "URL to access Nextcloud through the load balancer"
+  value       = "http://${aws_lb.nextcloud.dns_name}"
+}

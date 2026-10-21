@@ -69,14 +69,14 @@ resource "aws_security_group_rule" "alb_https" {
 
 # Inbound/Outbound rules for public-facing application tier
 resource "aws_security_group_rule" "public_app_http" {
-  security_group_id = aws_security_group.public_app.id
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id        = aws_security_group.public_app.id
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.public_alb.id
 
-  description = "Temporary direct HTTP access for DR lab validation"
+  description = "Allow HTTP traffic only from ALB"
 }
 
 resource "aws_security_group_rule" "public_app_ssh" {
@@ -98,4 +98,15 @@ resource "aws_security_group_rule" "public_app_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
 
   description = "Allow outbound traffic for public DR application workloads"
+}
+
+resource "aws_security_group_rule" "alb_to_nextcloud" {
+  security_group_id        = aws_security_group.public_alb.id
+  type                     = "egress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.public_app.id
+
+  description = "Allow HTTP traffic from ALB to Nextcloud"
 }

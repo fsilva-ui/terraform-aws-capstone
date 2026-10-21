@@ -96,21 +96,21 @@ DocumentRoot "/var/www/nextcloud"
 APACHE
 
 # 10. Configure Nextcloud URL
-TOKEN=$(curl -fsS -X PUT \
-  http://169.254.169.254/latest/api/token \
-  -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
-
-PUBLIC_IP=$(curl -fsS \
-  -H "X-aws-ec2-metadata-token: $TOKEN" \
-  http://169.254.169.254/latest/meta-data/public-ipv4)
+ALB_DNS="${1:?Missing ALB DNS name}"
 
 cd "$NEXTCLOUD"
 
 runuser -u apache -- php occ config:system:set trusted_domains 1 \
-  --value="$PUBLIC_IP"
+  --value="$ALB_DNS"
 
 runuser -u apache -- php occ config:system:set overwrite.cli.url \
-  --value="http://$PUBLIC_IP"
+  --value="http://$ALB_DNS"
+
+runuser -u apache -- php occ config:system:set overwritehost \
+  --value="$ALB_DNS"
+
+runuser -u apache -- php occ config:system:set overwriteprotocol \
+  --value="http"
 
 runuser -u apache -- php occ config:system:set overwritewebroot \
   --value="/"

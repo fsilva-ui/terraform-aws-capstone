@@ -147,14 +147,52 @@ resource "aws_ssm_document" "nextcloud_recovery" {
             set -euo pipefail
 
             aws s3 cp \
-              s3://${aws_s3_bucket.dr_backup.bucket}/scripts/restore-nextcloud.sh \
+              s3://${aws_s3_bucket.dr_backup.bucket}/scripts/restore-nextcloud-alb.sh \
               /root/restore-nextcloud.sh
 
             chmod +x /root/restore-nextcloud.sh
 
-            /root/restore-nextcloud.sh
+            /root/restore-nextcloud.sh "${aws_lb.nextcloud.dns_name}"
           EOF
           )
+        }
+      },
+      {
+        name      = "RegisterDRInstance"
+        action    = "aws:executeScript"
+        onFailure = "Abort"
+        isEnd     = true
+
+        inputs = {
+          Runtime = "python3.11"
+          Handler = "register_instance"
+
+          InputPayload = {
+            region           = var.aws_region
+            target_group_arn = aws_lb_target_group.nextcloud.arn
+            instance_ids     = "{{CreateDRInstance.InstanceIds}}"
+          }
+
+          Script = <<-PYTHON
+            import boto3
+
+            def register_instance(events, context):
+                elbv2 = boto3.client("elbv2", region_name=events["region"])
+
+                targets = [
+                    {"Id": instance_id, "Port": 80}
+                    for instance_id in events["instance_ids"]
+                ]
+
+                elbv2.register_targets(
+                    TargetGroupArn=events["target_group_arn"],
+                    Targets=targets
+                )
+
+                return {
+                    "message": "Recovery instance registered in the target group."
+                }
+          PYTHON
         }
       }
     ]

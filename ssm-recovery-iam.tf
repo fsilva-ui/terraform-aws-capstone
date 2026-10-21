@@ -32,6 +32,11 @@ resource "aws_iam_role_policy" "ssm_recovery" {
 
     Statement = [
       {
+        Effect   = "Allow"
+        Action   = "elasticloadbalancing:RegisterTargets"
+        Resource = aws_lb_target_group.nextcloud.arn
+      },
+      {
         Effect = "Allow"
 
         Action = [
